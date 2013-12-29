@@ -17,7 +17,7 @@ function BDF() {}
 BDF.prototype = {
   /**
    * An object containing metadata about the font once loaded. This includes
-   * font version, name, size and serveral other properties.
+   * font version, name, size and several other properties.
    *
    * Example meta object:
    * {
@@ -32,7 +32,7 @@ BDF.prototype = {
   meta: null,
 
   /**
-   * An object containing data for each glyph in the font. Each key in
+   * An object containing data for every glyph in the font. Each key in
    * this object represents the character encoding.
    *
    * Example glyphs object:
@@ -72,7 +72,7 @@ BDF.prototype = {
    *
    * The `bytes` object corresponding to each glyph is similar to the bitmap
    * object, but each series of eight 1s and 0s on a row is encoded in a byte,
-   * instead of being laied out as 1s and 0s in an array.
+   * instead of being laid out as 1s and 0s in an array.
    * Example bytes object, for the character 'A' with code 65:
    * [ 24, 60, 102, 126, 102, 102, 102, 0 ]
    */
