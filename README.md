@@ -93,7 +93,7 @@ Example bytes object, for the character `'A'` with code `65`:
 
 Creates and returns a string containing all the characters in this font.
 
-* __**`writeText()`**__
+* __**`writeText(text, options)`**__
 
 Convenient way of creating a matrix concatenating bitmap information for several glyphs in this font. The first parameter, `text` is a string containing the text to convert to a bitmap. The optional `options` object contains a couple of flags for writing the text: `textRepeat` (a number specifying how many times the text repeats) and `kerningBias` (a number consistently added to the glyph width when building the bitmap).
 
