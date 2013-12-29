@@ -3,7 +3,7 @@
 var fs = require("fs");
 
 /**
- * Simply utility for reading Adobe Glyph Bitmap Distribution font files.
+ * Simple utility for reading Adobe Glyph Bitmap Distribution font files.
  *
  * Example use:
  *  var font = new BDF();

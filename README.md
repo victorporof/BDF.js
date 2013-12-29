@@ -1,7 +1,7 @@
 BDF.js
 ======
 
-Simply library for reading Adobe Glyph Bitmap Distribution font files.
+Simple library for reading Adobe Glyph Bitmap Distribution font files.
 
 ## How to use
 ```javascript
