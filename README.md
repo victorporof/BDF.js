@@ -40,7 +40,7 @@ Example meta object:
   properties: { fontDescent: 2, fontAscent: 6, defaultChar: 0 },
   totalChars: 95
 }
-```javascript
+```
 
 * __**`glyphs`**__ (property)
 
