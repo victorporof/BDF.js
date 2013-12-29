@@ -31,7 +31,7 @@ Similar to `load`, but synchronous.
 An object containing metadata about the font once loaded. This includes the font version, name, size and several other properties.
 
 Example meta object:
-```json
+```javascript
 {
   version: '2.1',
   name: 'c64',
@@ -40,14 +40,14 @@ Example meta object:
   properties: { fontDescent: 2, fontAscent: 6, defaultChar: 0 },
   totalChars: 95
 }
-```json
+```javascript
 
 * __**`glyphs`**__ (property)
 
 An object containing data for every glyph in the font. Each key in this object represents the character encoding.
 
 Example glyphs object:
-```json
+```javascript
 {
   ...
   '64': { ... }
@@ -71,7 +71,7 @@ The `bitmap` object corresponding to each glyph contains a matrix of
 `1`s and `0`s defining the shape of the glyph in the bounding box.
 Example bitmap object, for the character `'A'` with code `65`:
 (the spaces are `0`s, left out in the example below to make it clearer)
-```json
+```javascript
 [
   [       1 1       ],
   [     1 1 1 1     ],
