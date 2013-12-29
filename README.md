@@ -8,7 +8,6 @@ Simply library for reading Adobe Glyph Bitmap Distribution font files.
 var font = new BDF();
 font.load("c64.bfd", function() {
   console.log(font);
-  console.log(font.writeText("hello"));
 });
 ```
 An example Commodore 64 8x8 point font is included.
