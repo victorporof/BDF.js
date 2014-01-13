@@ -3,6 +3,10 @@ BDF.js
 
 Simple library for reading Adobe Glyph Bitmap Distribution font files. Read more about this format on [Wikipedia](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format).
 
+## Install
+
+`npm install bdf`
+
 ## How to use
 ```javascript
 var font = new BDF();
