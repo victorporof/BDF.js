@@ -272,8 +272,8 @@ BDF.prototype = {
       var charCode = text[i].charCodeAt(0);
       var glyphData = this.glyphs[charCode];
 
-      for (var y = 0; y < 8; y++) {
-        for (var x = 0; x < 8; x++) {
+      for (var y = 0; y < glyphData.boundingBox.height; y++) {
+        for (var x = 0; x < glyphData.boundingBox.width; x++) {
           var row = y + glyphData.boundingBox.y + fontDescent;
           var column = x + glyphData.boundingBox.x + _bitmap.width;
           _bitmap[row][column] |= glyphData.bitmap[y][x];
