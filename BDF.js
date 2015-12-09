@@ -211,12 +211,17 @@ BDF.prototype = {
           };
           break;
         case "BITMAP":
-          for (var row = 0; row < this.meta.size.points; row++, i++) {
-            var byte = parseInt(fontLines[i + 1], 16);
-            currentChar.bytes.push(byte);
+          var bytesPerLine = Math.ceil(currentChar.boundingBox.width / 8);
+          for (var row = 0; row < currentChar.boundingBox.height; row++, i++) {
+            var bytesLine = fontLines[i + 1];
             currentChar.bitmap[row] = [];
-            for (var bit = 7; bit >= 0; bit--) {
-              currentChar.bitmap[row][7 - bit] = byte & (1 << bit) ? 1 : 0;
+            for(var byteIndex = 0; byteIndex < bytesPerLine; byteIndex++) {
+              var byteString = bytesLine.substr(byteIndex * 2, 2);
+              var byte = parseInt(byteString, 16);
+              currentChar.bytes.push(byte);
+              for (var bit = 7; bit >= 0; bit--) {
+                currentChar.bitmap[row][(byteIndex * 8) + (7 - bit)] = byte & (1 << bit) ? 1 : 0;
+              }
             }
           }
           break;
@@ -256,14 +261,14 @@ BDF.prototype = {
     var textRepeat = options.textRepeat || 0;
     var kerningBias = options.kerningBias || 0;
 
-    var points = this.meta.size.points;
+    var height = this.meta.boundingBox.height;
     var fontDescent = this.meta.properties.fontDescent;
 
     if (!_bitmap) {
       _bitmap = {};
       _bitmap.width = 0;
-      _bitmap.height = points;
-      for (var row = 0; row < points; row++) {
+      _bitmap.height = height;
+      for (var row = 0; row < height; row++) {
         _bitmap[row] = [];
       }
     }
