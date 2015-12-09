@@ -263,6 +263,7 @@ BDF.prototype = {
 
     var height = this.meta.boundingBox.height;
     var fontDescent = this.meta.properties.fontDescent;
+    var origo = (height - fontDescent);
 
     if (!_bitmap) {
       _bitmap = {};
@@ -275,12 +276,21 @@ BDF.prototype = {
 
     for (var i = 0; i < text.length; i++) {
       var charCode = text[i].charCodeAt(0);
-      var glyphData = this.glyphs[charCode];
+      var glyphData = this.glyphs[charCode];       
+      var rowStart = (origo - glyphData.boundingBox.y - glyphData.boundingBox.height);
+
+      // extend bitmap to the right with zeros
+      for (var row = 0; row < height; row++) {
+        for (var glyphColumn = 0; glyphColumn < glyphData.deviceWidthX; glyphColumn++){
+          column = glyphColumn + _bitmap.width;
+          _bitmap[row][column] = 0;
+        }
+      } 
 
       for (var y = 0; y < glyphData.boundingBox.height; y++) {
         for (var x = 0; x < glyphData.boundingBox.width; x++) {
-          var row = y + glyphData.boundingBox.y + fontDescent;
-          var column = x + glyphData.boundingBox.x + _bitmap.width;
+          var row = rowStart + y;
+          var column = _bitmap.width + glyphData.boundingBox.x + x;
           _bitmap[row][column] |= glyphData.bitmap[y][x];
         }
       }

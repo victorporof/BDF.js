@@ -13,6 +13,7 @@ before(function(){
 	loadFont('4x6');
 	loadFont('7x14');
 	loadFont('10x20');
+	loadFont('helvR12');
 })
 
 describe('#loadFont()', function(){
@@ -20,6 +21,7 @@ describe('#loadFont()', function(){
 		assert.equal(fonts['4x6'].meta.size.points, 6, "4x6 point size should be 6");
 		assert.equal(fonts['7x14'].meta.size.points, 7, "7x14 point size should be 7");
 		assert.equal(fonts['10x20'].meta.size.points, 20, "10x20 point size should be 20");
+		assert.equal(fonts['helvR12'].meta.size.points, 12, "helvR12 point size should be 12");
 	})
 
 	it('should return valid bytes for 4x6', function(){
@@ -70,6 +72,28 @@ describe('#loadFont()', function(){
 	})
 })
 
-describe('Font rendering tests', function(){
+describe('#writeText', function(){
+	it('should respect bounding box', function(){
+		var font = fonts['helvR12'];
 
+		var testText = "'";
+		var testChar = testText.charCodeAt(0);
+
+		var glyph = font.glyphs[testChar];
+		assert.deepEqual(glyph.bytes, [0x80, 0x80, 0x80]);
+
+		var bitmap = font.writeText(testText);
+
+		var zeros = [0, 0, 0];
+		var one = [0, 1, 0];
+
+		for(var i = 0; i < bitmap.height; i++){
+			if(i == 3 || i == 4 || i == 5){
+				assert.deepEqual(bitmap[i], one);
+			}
+			else {
+				assert.deepEqual(bitmap[i], zeros);
+			}
+		}
+	})
 })
