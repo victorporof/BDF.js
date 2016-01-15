@@ -14,6 +14,7 @@ before(function(){
 	loadFont('7x14');
 	loadFont('10x20');
 	loadFont('helvR12');
+	loadFont('c64');
 })
 
 describe('#loadFont()', function(){
@@ -22,6 +23,7 @@ describe('#loadFont()', function(){
 		assert.equal(fonts['7x14'].meta.size.points, 7, "7x14 point size should be 7");
 		assert.equal(fonts['10x20'].meta.size.points, 20, "10x20 point size should be 20");
 		assert.equal(fonts['helvR12'].meta.size.points, 12, "helvR12 point size should be 12");
+		assert.equal(fonts['c64'].meta.size.points, 8, "helvR12 point size should be 8");
 	})
 
 	it('should return valid bytes for 4x6', function(){
@@ -96,4 +98,17 @@ describe('#writeText', function(){
 			}
 		}
 	})
+
+	it('should not fail for characters missing in font', function(){
+		var font = fonts['c64'];
+
+		var testText = "Å";
+		var testChar = testText.charCodeAt(0);
+
+		var glyph = font.glyphs[testChar];
+		assert.equal(glyph, undefined);
+
+		var bitmap = font.writeText(testText);
+		assert(bitmap != null);
+	});
 })

@@ -276,7 +276,13 @@ BDF.prototype = {
 
     for (var i = 0; i < text.length; i++) {
       var charCode = text[i].charCodeAt(0);
-      var glyphData = this.glyphs[charCode];       
+      var glyphData = this.glyphs[charCode];
+
+      // Replace missing characters with "?", hopefully that exists is most fonts
+      if(!glyphData){
+      	charCode = "?".charCodeAt(0);
+      	glyphData = this.glyphs[charCode];
+      }
       var rowStart = (origo - glyphData.boundingBox.y - glyphData.boundingBox.height);
 
       // extend bitmap to the right with zeros
