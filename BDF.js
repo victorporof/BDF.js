@@ -280,8 +280,8 @@ BDF.prototype = {
 
       // Replace missing characters with "?", hopefully that exists is most fonts
       if(!glyphData){
-      	charCode = "?".charCodeAt(0);
-      	glyphData = this.glyphs[charCode];
+        charCode = "?".charCodeAt(0);
+        glyphData = this.glyphs[charCode];
       }
       var rowStart = (origo - glyphData.boundingBox.y - glyphData.boundingBox.height);
 
