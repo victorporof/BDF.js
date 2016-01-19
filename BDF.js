@@ -28,6 +28,9 @@ BDF.prototype = {
    *   properties: { fontDescent: 2, fontAscent: 6, defaultChar: 0 },
    *   totalChars: 95
    * }
+   *
+   * Note that fontDescent and fontAscent are line spacing hints only.
+   * For correct baseline positioning, use the boundingBox attributes.
    */
   meta: null,
 
@@ -211,12 +214,17 @@ BDF.prototype = {
           };
           break;
         case "BITMAP":
-          for (var row = 0; row < this.meta.size.points; row++, i++) {
-            var byte = parseInt(fontLines[i + 1], 16);
-            currentChar.bytes.push(byte);
+          var bytesPerLine = Math.ceil(currentChar.boundingBox.width / 8);
+          for (var row = 0; row < currentChar.boundingBox.height; row++, i++) {
+            var bytesLine = fontLines[i + 1];
             currentChar.bitmap[row] = [];
-            for (var bit = 7; bit >= 0; bit--) {
-              currentChar.bitmap[row][7 - bit] = byte & (1 << bit) ? 1 : 0;
+            for(var byteIndex = 0; byteIndex < bytesPerLine; byteIndex++) {
+              var byteString = bytesLine.substr(byteIndex * 2, 2);
+              var byte = parseInt(byteString, 16);
+              currentChar.bytes.push(byte);
+              for (var bit = 7; bit >= 0; bit--) {
+                currentChar.bitmap[row][(byteIndex * 8) + (7 - bit)] = byte & (1 << bit) ? 1 : 0;
+              }
             }
           }
           break;
@@ -256,14 +264,18 @@ BDF.prototype = {
     var textRepeat = options.textRepeat || 0;
     var kerningBias = options.kerningBias || 0;
 
-    var points = this.meta.size.points;
-    var fontDescent = this.meta.properties.fontDescent;
+    var height = this.meta.boundingBox.height;
+    var yoffset = this.meta.boundingBox.y;
+    var baseline = (height + yoffset);
+
+    // Current horizontal position in the destination bitmap
+    var xpos = 0;
 
     if (!_bitmap) {
       _bitmap = {};
       _bitmap.width = 0;
-      _bitmap.height = points;
-      for (var row = 0; row < points; row++) {
+      _bitmap.height = height;
+      for (var row = 0; row < height; row++) {
         _bitmap[row] = [];
       }
     }
@@ -272,14 +284,57 @@ BDF.prototype = {
       var charCode = text[i].charCodeAt(0);
       var glyphData = this.glyphs[charCode];
 
-      for (var y = 0; y < 8; y++) {
-        for (var x = 0; x < 8; x++) {
-          var row = y + glyphData.boundingBox.y + fontDescent;
-          var column = x + glyphData.boundingBox.x + _bitmap.width;
+      // Replace missing characters with:
+      // 1: default char
+      // 2: '?'
+      // 3: the first character in the font
+      if(!glyphData){
+        charCode = this.meta.properties.defaultChar;
+        glyphData = this.glyphs[charCode];
+      }
+
+      if(!glyphData){
+        charCode = "?".charCodeAt(0);
+        glyphData = this.glyphs[charCode];
+      }
+      
+      if(!glyphData){
+        var keys = Object.keys(this.glyphs);
+        glyphData = this.glyphs[keys[0]];
+      }
+
+      // Index into the destination bitmap for the top row of the font
+      var rowStart = (baseline - glyphData.boundingBox.y - glyphData.boundingBox.height);
+
+      // This character will need this many columns
+      var columnsToAdd = Math.max(glyphData.deviceWidthX, glyphData.boundingBox.width);
+
+      // Make room for offset bounding box, adjust xpos accordingly
+      if(_bitmap.width < -glyphData.boundingBox.x){
+        xpos = -glyphData.boundingBox.x;
+        columnsToAdd += xpos;
+      }
+
+      // Extend bitmap to the right with zeros
+      for (var row = 0; row < height; row++) {
+        for (var glyphColumn = 0; glyphColumn < columnsToAdd; glyphColumn++){
+          column = glyphColumn + _bitmap.width;
+          _bitmap[row][column] = 0;
+        }
+      }
+      _bitmap.width += columnsToAdd;
+
+      // Draw the glyph
+      for (var y = 0; y < glyphData.boundingBox.height; y++) {
+        for (var x = 0; x < glyphData.boundingBox.width; x++) {
+          var row = rowStart + y;
+          var column = xpos + glyphData.boundingBox.x + x;
           _bitmap[row][column] |= glyphData.bitmap[y][x];
         }
       }
-      _bitmap.width += glyphData.deviceWidthX + kerningBias;
+
+      // Advance position
+      xpos += glyphData.deviceWidthX + kerningBias;
     }
 
     if (textRepeat > 0) {
