@@ -211,12 +211,14 @@ BDF.prototype = {
           };
           break;
         case "BITMAP":
-          for (var row = 0; row < this.meta.size.points; row++, i++) {
-            var byte = parseInt(fontLines[i + 1], 16);
-            currentChar.bytes.push(byte);
+          for (var row = 0; row < currentChar.boundingBox.height; row++, i++) {
             currentChar.bitmap[row] = [];
-            for (var bit = 7; bit >= 0; bit--) {
-              currentChar.bitmap[row][7 - bit] = byte & (1 << bit) ? 1 : 0;
+            for (var colbyte = 0; colbyte < Math.ceil(currentChar.boundingBox.width / 8.0); colbyte++) {
+              var byte = parseInt(fontLines[i + 1].substr(colbyte * 2, 2), 16);
+              currentChar.bytes.push(byte);
+              for (var bit = 7; bit >= 0; bit--) {
+                currentChar.bitmap[row][colbyte * 8 + 7 - bit] = byte & (1 << bit) ? 1 : 0;
+              }
             }
           }
           break;
@@ -256,7 +258,7 @@ BDF.prototype = {
     var textRepeat = options.textRepeat || 0;
     var kerningBias = options.kerningBias || 0;
 
-    var points = this.meta.size.points;
+    var points = this.meta.properties.fontAscent + this.meta.properties.fontDescent;
     var fontDescent = this.meta.properties.fontDescent;
 
     if (!_bitmap) {
@@ -271,11 +273,16 @@ BDF.prototype = {
     for (var i = 0; i < text.length; i++) {
       var charCode = text[i].charCodeAt(0);
       var glyphData = this.glyphs[charCode];
+      var startRow = points - fontDescent - (glyphData.boundingBox.y + glyphData.boundingBox.height);
 
-      for (var y = 0; y < 8; y++) {
-        for (var x = 0; x < 8; x++) {
-          var row = y + glyphData.boundingBox.y + fontDescent;
-          var column = x + glyphData.boundingBox.x + _bitmap.width;
+      for (var y = 0; y < points; y++) {
+        for (var x = 0, column = _bitmap.width; x < glyphData.deviceWidthX; x++, column++) {
+          _bitmap[y][column] = 0;
+        }
+      }
+
+      for (var y = 0, row = startRow; y < glyphData.boundingBox.height; y++, row++) {
+        for (var x = 0, column = _bitmap.width + glyphData.boundingBox.x; x < glyphData.boundingBox.width; x++, column++) {
           _bitmap[row][column] |= glyphData.bitmap[y][x];
         }
       }
